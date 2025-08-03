@@ -53,7 +53,7 @@ const Hero = () => {
           
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="p-6">
-              <div className="text-3xl font-bold text-green-600 mb-2">500+</div>
+              <div className="text-3xl font-bold text-green-600 mb-2">5+</div>
               <div className="text-gray-600">Projects Completed</div>
             </div>
             <div className="p-6">
