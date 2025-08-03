@@ -1,5 +1,3 @@
-import { supabase } from 'lib/supabase' // adjust path if needed
-
 import React, { useState, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +5,7 @@ import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { adminService } from '../services/adminService';
 import { getInitializationStatus } from '../utils/initializeApp';
+import { supabase } from '../lib/supabase';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
