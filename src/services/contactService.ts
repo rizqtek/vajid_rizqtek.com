@@ -1,3 +1,6 @@
+/* ──────────────────────────────────────────────
+   services/contactService.ts
+────────────────────────────────────────────── */
 import { supabase } from '../lib/supabase';
 
 export interface ContactFormData {
@@ -10,31 +13,17 @@ export interface ContactFormData {
 
 export const contactService = {
   async submit(formData: ContactFormData) {
-    try {
-      const { data, error } = await supabase
-        .from('contacts')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          project_type: formData.service || null,
-          message: formData.message
-        }])
-        .select()
-        .single();
+    const { error } = await supabase.rpc('submit_contact', {
+      _name:    formData.name,
+      _email:   formData.email,
+      _company: formData.company || null,
+      _service: formData.service || null,
+      _message: formData.message
+    });
 
-      if (error) {
-        console.error('Error submitting contact form:', error);
-        throw new Error('Failed to submit contact form. Please try again.');
-      }
-
-      return {
-        success: true,
-        message: 'Thank you! Your message has been sent successfully.',
-        data
-      };
-    } catch (error) {
-      console.error('Contact service error:', error);
-      throw error;
+    if (error) {
+      console.error('Error submitting contact form:', error);
+      throw new Error('Failed to submit contact form. Please try again.');
     }
   }
 };
