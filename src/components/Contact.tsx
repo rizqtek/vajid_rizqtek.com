@@ -78,10 +78,11 @@ const Contact = () => {
                   <div className="bg-gradient-to-br from-blue-100 to-indigo-100 p-3 rounded-full shadow-lg">
                     <Phone className="h-6 w-6 text-blue-600" />
                   </div>
-                  <div>
+                 <div>
                     <div className="font-semibold text-slate-900">Phone</div>
-                    <div className="text-slate-600">+1 (555) 123-4567</div>
-                  </div>
+                      <div className="text-slate-600">+91 84487 22686</div>
+                    </div>
+
                 </div>
                 
                 <div className="flex items-center space-x-4">
