@@ -13,21 +13,21 @@ const Hero = () => {
         <div className="text-center max-w-4xl mx-auto relative z-10">
           <div className="flex items-center justify-center space-x-2 mb-6">
             <Sparkles className="h-5 w-5 text-emerald-600 animate-pulse" />
-            <span className="text-emerald-700 font-semibold tracking-wide text-sm uppercase">Ethical Tech Solutions</span>
+            <span className="text-emerald-700 font-semibold tracking-wide text-sm uppercase">🚀 RizqTek Special Launch Pricing</span>
             <Sparkles className="h-5 w-5 text-emerald-600 animate-pulse" />
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-            Sustaining Futures with{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600">
-              Ethical Tech
-            </span>
+              Exclusive Launch Offers
+            </span>{' '}
+            for Our First 10 Clients
           </h1>
           
           <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed font-light">
-            RizqTek empowers individuals, startups, and ethical businesses through data-driven solutions, 
-            automation, and high-impact digital products — all rooted in <strong>halal rizq</strong>, 
-            <strong> barakah</strong>, <strong>tawakkul</strong>, and <strong>ihsan</strong>.
+            <strong>Limited-Time Pricing</strong> — Get expert data analytics, automation, and web development 
+            services with <strong>barakah</strong> and <strong>24/7 support</strong>. 
+            <span className="text-emerald-600 font-semibold">Book now before slots fill!</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -40,7 +40,7 @@ const Hero = () => {
               }}
               className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center space-x-2 shadow-lg"
             >
-              <span>Start Your Project</span>
+              <span>🏆 Book Your Slot Now</span>
               <ArrowRight className="h-5 w-5" />
             </button>
             <button 
@@ -52,22 +52,22 @@ const Hero = () => {
               }}
               className="border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-600 hover:text-white transition-all duration-300 backdrop-blur-sm bg-white/80 hover:shadow-lg"
             >
-              View Our Work
+              View Launch Pricing
             </button>
           </div>
           
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="text-4xl font-bold text-emerald-600 mb-2">5+</div>
-              <div className="text-slate-600 font-medium">Projects Completed</div>
+              <div className="text-4xl font-bold text-emerald-600 mb-2">10</div>
+              <div className="text-slate-600 font-medium">Exclusive Client Slots</div>
             </div>
             <div className="p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="text-4xl font-bold text-blue-600 mb-2">100%</div>
-              <div className="text-slate-600 font-medium">Halal & Ethical</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">5-7</div>
+              <div className="text-slate-600 font-medium">Days Delivery</div>
             </div>
             <div className="p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="text-4xl font-bold text-amber-600 mb-2">24/7</div>
-              <div className="text-slate-600 font-medium">Support Available</div>
+              <div className="text-slate-600 font-medium">Support & Barakah</div>
             </div>
           </div>
         </div>
