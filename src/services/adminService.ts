@@ -21,8 +21,8 @@ export const adminService = {
     try {
       // Call Postgres function verify_admin_credentials
       const { data, error } = await supabase.rpc('verify_admin_credentials', {
-        admin_email: email,
-        admin_password: password
+        email,
+        password
       });
 
       // Handle Supabase error
