@@ -37,7 +37,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-emerald-400" />
-                <span className="text-slate-300">+1 (555) 123-4567</span>
+                  <span className="text-slate-300">+91 84487 22686</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-emerald-400" />
@@ -52,6 +52,7 @@ const Footer = () => {
               <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Data Analytics</a></li>
               <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Automation Tools</a></li>
               <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Web Development</a></li>
+              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Website SEO</a></li>
               <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">AI Career Tools</a></li>
               <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">SaaS Solutions</a></li>
             </ul>

@@ -41,6 +41,13 @@ const Services = () => {
           price: '$2,000 USD',
           description: 'End-to-end development with all integrations for your business.',
           icon: Code
+        },
+        {
+          name: 'Website SEO Setup & Optimization',
+          subtitle: 'technical SEO, on-page, analytics',
+          price: '$399 USD',
+          description: 'Technical SEO fixes, sitemap/robots, meta tags, performance tweaks, schema basics, and Google Analytics/Search Console setup.',
+          icon: Code
         }
       ]
     },
