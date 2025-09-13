@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sun, Mail, Phone, MapPin, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -49,23 +50,23 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-6">Services</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Data Analytics</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Automation Tools</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Web Development</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Website SEO</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">AI Career Tools</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">SaaS Solutions</a></li>
+              <li><Link to="/services/data-analytics" className="text-slate-300 hover:text-emerald-400 transition-colors">Data Analytics</Link></li>
+              <li><Link to="/services/automation-tools" className="text-slate-300 hover:text-emerald-400 transition-colors">Automation Tools</Link></li>
+              <li><Link to="/services/web-development" className="text-slate-300 hover:text-emerald-400 transition-colors">Web Development</Link></li>
+              <li><Link to="/services/website-seo" className="text-slate-300 hover:text-emerald-400 transition-colors">Website SEO</Link></li>
+              <li><Link to="/services/ai-career-tools" className="text-slate-300 hover:text-emerald-400 transition-colors">AI Career Tools</Link></li>
+              <li><Link to="/services/saas-solutions" className="text-slate-300 hover:text-emerald-400 transition-colors">SaaS Solutions</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-6">Company</h3>
             <ul className="space-y-3">
-              <li><a href="#about" className="text-slate-300 hover:text-emerald-400 transition-colors">About Us</a></li>
-              <li><a href="#services" className="text-slate-300 hover:text-emerald-400 transition-colors">Our Services</a></li>
-              <li><a href="#industries" className="text-slate-300 hover:text-emerald-400 transition-colors">Industries</a></li>
-              <li><a href="#contact" className="text-slate-300 hover:text-emerald-400 transition-colors">Contact</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+              <li><Link to="/about" className="text-slate-300 hover:text-emerald-400 transition-colors">About Us</Link></li>
+              <li><Link to="/services" className="text-slate-300 hover:text-emerald-400 transition-colors">Our Services</Link></li>
+              <li><Link to="/industries" className="text-slate-300 hover:text-emerald-400 transition-colors">Industries</Link></li>
+              <li><Link to="/contact" className="text-slate-300 hover:text-emerald-400 transition-colors">Contact</Link></li>
+              <li><Link to="/privacy-policy" className="text-slate-300 hover:text-emerald-400 transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>

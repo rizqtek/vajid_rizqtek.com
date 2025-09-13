@@ -1,0 +1,19 @@
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import FloatingChat from '../../components/FloatingChat';
+
+const WebDevelopmentPage = () => (
+  <>
+    <Header />
+    <main className="py-16 bg-gradient-to-b from-white to-emerald-50">
+      <div className="max-w-5xl mx-auto px-4">
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">Web Development</h1>
+        <p className="text-slate-600 text-lg">Modern, mobile-ready sites and apps with performance and accessibility in mind.</p>
+      </div>
+    </main>
+    <Footer />
+    <FloatingChat />
+  </>
+);
+
+export default WebDevelopmentPage;

@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -15,6 +17,40 @@ const authRoutes = require('./routes/auth');
 const serviceRoutes = require('./routes/services');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://www.rizqtek.com', 'https://rizqtek.com']
+      : ['http://localhost:5173', 'http://localhost:3000'],
+    methods: ['GET', 'POST']
+  }
+});
+
+// Simple in-memory chat history (non-persistent)
+const chatHistory = [];
+
+io.on('connection', (socket) => {
+  // Send existing history to the newly connected client
+  socket.emit('chat:history', chatHistory);
+
+  socket.on('chat:message', (msg) => {
+    const message = {
+      id: Date.now().toString(),
+      text: msg.text?.toString().slice(0, 1000) || '',
+      name: (msg.name || 'Guest').toString().slice(0, 64),
+      timestamp: new Date().toISOString()
+    };
+    chatHistory.push(message);
+    // Keep last 100 messages
+    if (chatHistory.length > 100) chatHistory.shift();
+    io.emit('chat:message', message);
+  });
+
+  socket.on('disconnect', () => {
+    // no-op
+  });
+});
 
 // Connect to database
 connectDB();
@@ -33,6 +69,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
+      connectSrc: ["'self'", 'http:', 'https:', 'ws:', 'wss:'],
       imgSrc: ["'self'", "data:", "https:"],
     },
   },
@@ -90,7 +127,7 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });

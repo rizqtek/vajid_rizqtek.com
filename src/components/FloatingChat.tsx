@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { contactService } from '../services/contactService';
+import { io, Socket } from 'socket.io-client';
 
 const FloatingChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,32 @@ const FloatingChat = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [messages, setMessages] = useState<Array<{ id: string; name: string; text: string; timestamp: string }>>([]);
+  const socket: Socket | null = useMemo(() => {
+    try {
+      const base = window.location.origin;
+      const serverUrl = import.meta.env.VITE_SERVER_URL || (base.includes('localhost') ? 'http://localhost:5000' : base);
+      return io(serverUrl, { transports: ['websocket'] });
+    } catch {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('connect', () => {
+      // connected
+    });
+    socket.on('chat:history', (history) => {
+      setMessages(history);
+    });
+    socket.on('chat:message', (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,19 +46,21 @@ const FloatingChat = () => {
     setSubmitStatus('idle');
 
     try {
-      await contactService.submit({
-        ...formData,
-        company: '',
-        service: 'Quick Chat'
-      });
-      
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      
-      setTimeout(() => {
-        setIsOpen(false);
-        setSubmitStatus('idle');
-      }, 2000);
+      if (socket && formData.message.trim()) {
+        socket.emit('chat:message', { name: formData.name || 'Guest', text: formData.message });
+        setFormData({ ...formData, message: '' });
+      } else {
+        await contactService.submit({
+          ...formData,
+          company: '',
+          service: 'Quick Chat'
+        });
+        setSubmitStatus('success');
+        setTimeout(() => {
+          setIsOpen(false);
+          setSubmitStatus('idle');
+        }, 2000);
+      }
     } catch (error) {
       setSubmitStatus('error');
     } finally {
@@ -96,6 +125,18 @@ const FloatingChat = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3 border">
+                    {messages.length === 0 ? (
+                      <div className="text-sm text-gray-500">Say salam 👋 — we usually reply quickly.</div>
+                    ) : (
+                      messages.map((m) => (
+                        <div key={m.id} className="mb-2">
+                          <div className="text-xs text-gray-500">{new Date(m.timestamp).toLocaleTimeString()}</div>
+                          <div className="text-sm"><span className="font-semibold">{m.name}:</span> {m.text}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                   <div>
                     <input
                       type="text"
@@ -147,7 +188,7 @@ const FloatingChat = () => {
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                     ) : (
                       <>
-                        <span>Send Message</span>
+                        <span>Send</span>
                         <Send className="h-4 w-4" />
                       </>
                     )}
