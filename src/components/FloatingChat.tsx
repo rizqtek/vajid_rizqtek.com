@@ -1,19 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { contactService } from '../services/contactService';
 import { io, Socket } from 'socket.io-client';
 
 const FloatingChat = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [name, setName] = useState('Guest');
+  const [message, setMessage] = useState('');
+  const listRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<Array<{ id: string; name: string; text: string; timestamp: string }>>([]);
+  const [typingUsers, setTypingUsers] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const t = setInterval(() => {
+      const now = Date.now();
+      setTypingUsers((prev) => Object.fromEntries(Object.entries(prev).filter(([, until]) => until > now)));
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages, isOpen]);
   const socket: Socket | null = useMemo(() => {
     try {
       const base = window.location.origin;
@@ -40,39 +47,17 @@ const FloatingChat = () => {
     };
   }, [socket]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-
-    try {
-      if (socket && formData.message.trim()) {
-        socket.emit('chat:message', { name: formData.name || 'Guest', text: formData.message });
-        setFormData({ ...formData, message: '' });
-      } else {
-        await contactService.submit({
-          ...formData,
-          company: '',
-          service: 'Quick Chat'
-        });
-        setSubmitStatus('success');
-        setTimeout(() => {
-          setIsOpen(false);
-          setSubmitStatus('idle');
-        }, 2000);
-      }
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const send = () => {
+    if (!socket) return;
+    const text = message.trim();
+    if (!text) return;
+    socket.emit('chat:message', { name: name || 'Guest', text });
+    setMessage('');
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const emitTyping = () => {
+    if (!socket) return;
+    socket.emit('chat:typing', { name: name || 'Guest', until: Date.now() + 3000 });
   };
 
   return (
@@ -108,7 +93,7 @@ const FloatingChat = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Quick Message</h3>
+                <h3 className="text-xl font-bold text-gray-900">Live Chat</h3>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -116,85 +101,46 @@ const FloatingChat = () => {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-
-              {submitStatus === 'success' ? (
-                <div className="text-center py-8">
-                  <div className="text-green-600 text-4xl mb-4">✓</div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Message Sent!</h4>
-                  <p className="text-gray-600">We'll get back to you soon.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3 border">
-                    {messages.length === 0 ? (
-                      <div className="text-sm text-gray-500">Say salam 👋 — we usually reply quickly.</div>
-                    ) : (
-                      messages.map((m) => (
-                        <div key={m.id} className="mb-2">
-                          <div className="text-xs text-gray-500">{new Date(m.timestamp).toLocaleTimeString()}</div>
-                          <div className="text-sm"><span className="font-semibold">{m.name}:</span> {m.text}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Your name"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Your email"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder="How can we help you?"
-                      required
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
-                    />
-                  </div>
-
-                  {submitStatus === 'error' && (
-                    <div className="text-red-600 text-sm text-center">
-                      Failed to send message. Please try again.
-                    </div>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name (optional)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+                <div ref={listRef} className="max-h-48 overflow-y-auto bg-gray-50 rounded-lg p-3 border">
+                  {messages.length === 0 ? (
+                    <div className="text-sm text-gray-500">Say salam 👋 — we usually reply quickly.</div>
+                  ) : (
+                    messages.map((m) => (
+                      <div key={m.id} className="mb-2">
+                        <div className="text-xs text-gray-500">{new Date(m.timestamp).toLocaleTimeString()}</div>
+                        <div className="text-sm"><span className="font-semibold">{m.name}:</span> {m.text}</div>
+                      </div>
+                    ))
                   )}
-
+                </div>
+                <div className="text-xs text-gray-500 min-h-[1rem]">
+                  {Object.keys(typingUsers).length > 0 && 'Someone is typing…'}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => { setMessage(e.target.value); emitTyping(); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+                    placeholder="Type your message"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
                   <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={send}
+                    className="bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    {isSubmitting ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <span>Send</span>
-                        <Send className="h-4 w-4" />
-                      </>
-                    )}
+                    <Send className="h-4 w-4" />
                   </button>
-                </form>
-              )}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -5,7 +5,6 @@ import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { adminService } from '../services/adminService';
 import { getInitializationStatus } from '../utils/initializeApp';
-import { supabase } from '../lib/supabase';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -43,50 +42,20 @@ const AdminLogin = () => {
   setError('');
 
   try {
-    // Authenticate using Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password
-    });
-
-    if (error) {
-      setError(error.message || 'Login failed');
+    const result = await adminService.login(formData.email, formData.password);
+    if (!result.success || !result.admin) {
+      setError(result.message || 'Invalid email or password');
       return;
     }
 
-    const user = data.user;
-    if (!user) {
-      setError('No user found');
-      return;
-    }
-
-    // Optionally fetch the user's role from the "roles" or "profiles" table
-    const { data: roleData, error: roleError } = await supabase
-      .from('roles') // or 'profiles' if you store role there
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (roleError) {
-      console.error('Error fetching role:', roleError.message);
-    }
-
-    const role = roleData?.role || 'client';
-
-    // Store session details in localStorage
     localStorage.setItem('adminSession', JSON.stringify({
-      id: user.id,
-      email: user.email,
-      role,
+      id: result.admin.id,
+      email: result.admin.email,
+      role: 'admin',
       loginTime: new Date().toISOString()
     }));
 
-    // Allow only admins to access the admin dashboard
-    if (role === 'admin') {
-      navigate('/admin');
-    } else {
-      setError('Access denied: You are not an admin');
-    }
+    navigate('/admin');
   } catch (err) {
     console.error('Login error:', err);
     setError(err instanceof Error ? err.message : 'Login failed. Please try again.');

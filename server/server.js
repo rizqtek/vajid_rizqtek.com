@@ -47,6 +47,12 @@ io.on('connection', (socket) => {
     io.emit('chat:message', message);
   });
 
+  socket.on('chat:typing', (payload) => {
+    const name = (payload?.name || 'Guest').toString().slice(0, 64);
+    const until = Number(payload?.until) || Date.now() + 3000;
+    io.emit('chat:typing', { name, until });
+  });
+
   socket.on('disconnect', () => {
     // no-op
   });

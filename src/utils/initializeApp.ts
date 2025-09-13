@@ -27,24 +27,8 @@ export const initializeApplication = async (): Promise<InitializationResult> => 
     console.log('📧 Admin Email:', adminEmail);
     console.log('👤 Admin Name:', adminName);
 
-    // Test Supabase connection
-    const { data: connectionTest, error: connectionError } = await supabase
-      .from('admins')
-      .select('count')
-      .limit(1);
-
-    if (connectionError) {
-      console.error('❌ Supabase connection failed:', connectionError.message);
-      return {
-        success: false,
-        message: `Database connection failed: ${connectionError.message}`
-      };
-    }
-
-    console.log('✅ Supabase connection successful');
-
-    // Create or update admin user
-    const { data, error } = await supabase.rpc('create_or_update_admin', {
+    // Create admin if not exists (idempotent)
+    const { data, error } = await supabase.rpc('create_admin_if_not_exists', {
       admin_email: adminEmail,
       admin_password: adminPassword,
       admin_name: adminName
@@ -58,20 +42,15 @@ export const initializeApplication = async (): Promise<InitializationResult> => 
       };
     }
 
-    const result = data as { success: boolean; message: string; created: boolean };
-    
-    if (result.created) {
-      console.log('✅ Admin user created successfully');
-    } else {
-      console.log('✅ Admin user updated successfully');
-    }
+    const result = data as { success: boolean; message: string; admin: unknown };
+    console.log('✅ Admin ensure/create result:', result?.message || 'done');
 
     console.log('🎉 Application initialized successfully!');
     
     return {
       success: true,
       message: 'Application initialized successfully',
-      adminCreated: result.created
+      adminCreated: true
     };
 
   } catch (error) {
