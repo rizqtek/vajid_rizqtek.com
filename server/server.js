@@ -92,8 +92,8 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://www.rizqtek.com'] 
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://www.rizqtek.com', 'https://rizqtek.com']
     : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true
 }));

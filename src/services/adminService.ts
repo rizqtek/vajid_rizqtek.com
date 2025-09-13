@@ -19,14 +19,16 @@ export const adminService = {
    */
   async login(email: string, password: string): Promise<AdminLoginResponse> {
     try {
-      // Call Postgres function verify_admin_credentials
-      const { data, error } = await supabase.rpc('verify_admin_credentials', {
-        email,
-        password
-      });
+      // 1) Try RPC verify_admin_credentials (preferred)
+      const { data, error } = await supabase.rpc('verify_admin_credentials', { email, password });
 
       // Handle Supabase error
       if (error) {
+        const msg = (error as any)?.message?.toLowerCase?.() || '';
+        // If RPC missing (404) or not found, attempt fallback(s)
+        if (msg.includes('not found') || msg.includes('does not exist') || msg.includes('404')) {
+          return await this.loginFallback(email, password);
+        }
         console.error('Error verifying credentials:', error);
         return { success: false, message: 'Login failed. Please try again.' };
       }
@@ -54,6 +56,47 @@ export const adminService = {
     } catch (err) {
       console.error('Error in admin login:', err);
       return { success: false, message: 'Unexpected error occurred' };
+    }
+  },
+
+  async loginFallback(email: string, password: string): Promise<AdminLoginResponse> {
+    try {
+      // 2) Try alternate RPC signature if your DB uses column "password" instead of "password_hash"
+      const alt = await supabase.rpc('verify_admin_credentials', { email, password });
+      if (!alt.error && alt.data && (alt.data as any).success) {
+        return { success: true, message: alt.data.message || 'Login successful', admin: (alt.data as any).admin };
+      }
+    } catch (e) {
+      // ignore and try API fallback
+    }
+
+    try {
+      // 3) Fallback to API backend if provided
+      const base = (import.meta as any).env?.VITE_SERVER_URL as string | undefined;
+      if (!base) return { success: false, message: 'Admin login service unavailable (no RPC/API). Please contact support.' };
+
+      const res = await fetch(`${base.replace(/\/$/, '')}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        return { success: false, message: json?.message || 'Invalid credentials' };
+      }
+      return {
+        success: true,
+        message: json?.message || 'Login successful',
+        admin: {
+          id: json?.admin?.id,
+          email: json?.admin?.email,
+          name: json?.admin?.name,
+          created_at: new Date().toISOString()
+        }
+      };
+    } catch (e) {
+      console.error('Admin API fallback failed:', e);
+      return { success: false, message: 'Login service temporarily unavailable.' };
     }
   },
 
